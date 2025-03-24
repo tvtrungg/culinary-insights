@@ -1,0 +1,21 @@
+name: culinary-recipes
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - pip:
+      - torch 
+      - numpy 
+      - pandas
+      - matplotlib
+      - seaborn 
+      - scikit-image
+      - requests
+      - scikit-learn 
+      - pyyaml 
+      - tqdm 
+      - loralib
+      - peft
+      - thop
+      - omegaconf
