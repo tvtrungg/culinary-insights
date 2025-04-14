@@ -1,4 +1,4 @@
-name: culinary-recipes
+name: culinary
 channels:
   - conda-forge
   - defaults
@@ -19,3 +19,4 @@ dependencies:
       - peft
       - thop
       - omegaconf
+      - prince

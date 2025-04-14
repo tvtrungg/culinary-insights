@@ -24,6 +24,6 @@ culinary-cultural-insights/
 #### For miniconda3 users:
 ```bash
 conda env create -f environment.yml
-conda activate culinary-recipes
+conda activate culinary
 ```
 ### Data source

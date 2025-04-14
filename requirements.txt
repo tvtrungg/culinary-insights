@@ -12,3 +12,4 @@ loralib
 peft
 thop
 omegaconf
+prince

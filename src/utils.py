@@ -26,3 +26,10 @@ def collect_ingredients(column):
         all_ingredients += column[i]
     all_ingredients = list(set(all_ingredients))
     return all_ingredients
+
+def count_ingredients(list_ing, ingre):
+    count = 0
+    for i in range(len(list_ing)):
+        if list_ing[i] == ingre:
+            count += 1
+    return count
