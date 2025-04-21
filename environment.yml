@@ -1,4 +1,4 @@
-name: culinary-recipes
+name: recipes
 channels:
   - conda-forge
   - defaults
