@@ -19,3 +19,4 @@ dependencies:
       - peft
       - thop
       - omegaconf
+      - streamlit
