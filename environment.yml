@@ -20,3 +20,7 @@ dependencies:
       - thop
       - omegaconf
       - prince
+      - plotly
+      - pyvips
+      - einops
+      - git+https://github.com/openai/CLIP.git

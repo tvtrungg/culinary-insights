@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd 
-from content.common_ingredients_analysis import common_ingredients_analysis
-from content.page_2 import page_2
-from content.page_3 import page_3
+from content.data import data
+from content.wordcloud import wordcloud
+from content.usps import usps
 
 
 st.set_page_config(
@@ -19,13 +19,15 @@ st.set_page_config(
 def app_layout():
     print("Chargement avec succès")
 
-    page = st.sidebar.radio("Summary", ["Common Ingredients Analysis", "Page 2", "Conclusion"])
+    df = pd.read_csv("data/cleaned_recipes_v2.csv", index_col=0)
 
-    if page == "Common Ingredients Analysis":
-        common_ingredients_analysis()
-    elif page == "Page 2":
-        page_2()
+    page = st.sidebar.radio("Summary", ["Data Overview", "Word Cloud", "PCA"])
+
+    if page == "Data Overview":
+        data(df)
+    elif page == "Word Cloud":
+        wordcloud(df)
     # elif page == "Optimisation":
     #     optimisation(stratified_df)
     else:
-        page_3()
+        usps(df)
