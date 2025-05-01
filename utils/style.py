@@ -7,7 +7,8 @@ def inject_css():
             width: 100% !important;
             table-layout: auto;
         }
-        .st-emotion-cache-mtjnbi {
+        
+        section.stMain > div {
             max-width: 90% !important;
         }
     </style>
