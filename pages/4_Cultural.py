@@ -1,18 +1,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import numpy as np
 import plotly.graph_objects as go
-from utils.data_loader import load_data
 from utils.style import inject_css
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-sns.set(style="whitegrid")
+sns.set_theme(style="whitegrid")
 
 inject_css()
-# data = load_data()
-# df = data[0]  
 
 st.markdown("# Ingredients Analysis on Cultural Diversity")
 
@@ -469,9 +469,6 @@ st.markdown("""
 """)
 
 st.markdown("""## Cultural-culinary clustering """)
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
 
 # Features for clustering at the recipe level
 features = [
@@ -495,11 +492,30 @@ for k in K_range:
     kmeans.fit(X_scaled)
     inertia.append(kmeans.inertia_)
 
-# PCA for visualization
+col1, col2 = st.columns(2)
+with col1:
+    # Plot Elbow
+    elbow_fig = go.Figure()
+    elbow_fig.add_trace(go.Scatter(
+        x=list(K_range),
+        y=inertia,
+        mode='lines+markers',
+        marker=dict(color='mediumslateblue'),
+        line=dict(width=2),
+    ))
+    elbow_fig.update_layout(
+        title="Elbow Method to Determine Optimal k",
+        title_font_size=24,
+        xaxis_title="Number of Clusters (k)",
+        yaxis_title="Inertia",
+        height=600
+    )
+    st.plotly_chart(elbow_fig, use_container_width=True)
+
+# PCA
 pca = PCA(n_components=2)
 X_pca = pca.fit_transform(X_scaled)
 
-# Fit KMeans with optimal
 optimal_k = 4
 kmeans_final = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
 clusters = kmeans_final.fit_predict(X_scaled)
@@ -507,27 +523,31 @@ clusters = kmeans_final.fit_predict(X_scaled)
 df_clust_result = df_valid.copy()
 df_clust_result["PCA1"] = X_pca[:, 0]
 df_clust_result["PCA2"] = X_pca[:, 1]
-df_clust_result["cluster"] = clusters + 1  # start cluster from 1
+df_clust_result["cluster"] = clusters + 1
 
-# Plot elbow and PCA
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+with col2:
+    # PCA scatter plot
+    fig = px.scatter(
+        df_clust_result,
+        x="PCA1",
+        y="PCA2",
+        color="cluster",
+        title="PCA of Recipes (Culinary + Cultural Features)",
+        color_discrete_sequence=px.colors.qualitative.Set2,
+        hover_data=["cuisine"],  # Optional: show country name or any metadata
+        template="plotly_white"
+    )
 
-# Elbow plot
-axes[0].plot(K_range, inertia, marker='o')
-axes[0].set_title("Elbow Method for Optimal k")
-axes[0].set_xlabel("Number of Clusters (k)")
-axes[0].set_ylabel("Inertia")
-axes[0].grid(True)
+    fig.update_traces(marker=dict(size=10, line=dict(width=1, color='DarkSlateGrey')))
+    fig.update_layout(
+        title_font_size=24,
+        legend_title_text="Cluster",
+        height=600,
+        margin=dict(l=20, r=20, t=60, b=40)
+    )
 
-# PCA scatterplot
-sns.scatterplot(data=df_clust_result, x="PCA1", y="PCA2", hue="cluster", palette="Set2", s=50, ax=axes[1])
-axes[1].set_title("PCA of Recipes (Culinary + Cultural Features)")
-axes[1].grid(True)
+    st.plotly_chart(fig, use_container_width=True)
 
-plt.tight_layout()
-plt.show()
-
-st.pyplot(fig)
 
 # Profile each cluster by averaging values
 cluster_profile = df_clust_result.groupby("cluster")[features].mean().round(2)
@@ -563,20 +583,32 @@ color_map = {
 
 fig = px.choropleth(
     data_frame=country_clusters,
-    locations="code_3",              # ✅ use ISO codes
-    locationmode="ISO-3",            # ✅ match format
+    locations="code_3",               # ISO 3-letter country codes
+    locationmode="ISO-3",
     color="dominant_cluster",
     hover_name="cuisine",
     color_discrete_map=color_map,
-    projection="natural earth",
-    title="🌍 Dominant Cultural-Culinary Cluster by Country"
+    projection="orthographic",       # <- Change this to orthographic for globe effect
+    title="Dominant Cultural-Culinary Cluster by Country"
 )
 
-fig.update_geos(showcoastlines=True, showland=True, landcolor="lightgray")
+fig.update_geos(
+    showcoastlines=True,
+    showland=True,
+    landcolor="lightgray",
+    oceancolor="lightblue",
+    showocean=True,
+    showframe=False,
+    projection_rotation=dict(lon=0, lat=0),  # Optional: Adjust rotation to center globe
+    bgcolor='rgba(0,0,0,0)',
+
+)
+
 fig.update_layout(
+    title_font_size=28,
     legend_title_text="Cluster",
-    title_font_size=18,
-    margin={"r":0, "t":40, "l":0, "b":0}
+    margin={"r": 0, "t": 52, "l": 0, "b": 20},
+    height=700,
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -672,7 +704,7 @@ report = classification_report(y_test, y_pred, output_dict=True)
 report_df = pd.DataFrame(report).transpose().round(2)
 
 # Display Classification Report
-st.markdown("### 📋 Classification Report")
+st.markdown("### Classification Report")
 st.dataframe(report_df)
 
 # Confusion Matrix
@@ -694,7 +726,7 @@ fig_cm.update_layout(
     yaxis_title="Actual"
 )
 
-st.markdown("### 🔍 Confusion Matrix")
+st.markdown("### Confusion Matrix")
 st.plotly_chart(fig_cm, use_container_width=True)
 
 # Get and prepare feature importances
@@ -717,11 +749,11 @@ fig_feature_importance = px.bar(
 )
 
 # Display in Streamlit
-st.markdown("### 📊 Feature Importances")
+st.markdown("### Feature Importances")
 st.plotly_chart(fig_feature_importance, use_container_width=True)
 
 # Show feature importance table
-st.markdown("### 📋 Feature Importance Table")
+st.markdown("### Feature Importance Table")
 st.dataframe(feature_importance_df.reset_index(drop=True))
 
 st.markdown("""##### Top Features Driving Cluster Assignment
@@ -781,7 +813,7 @@ mse = mean_squared_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
 # Display model evaluation metrics in Streamlit
-st.markdown("### 📊 Model Evaluation: Random Forest Regressor")
+st.markdown("### Model Evaluation: Random Forest Regressor")
 st.write(f"**Mean Squared Error (MSE)**: {mse:.2f}")
 st.write(f"**R-squared (R²)**: {r2:.2f}")
 
@@ -808,9 +840,11 @@ fig_eco_importance = px.bar(
 st.plotly_chart(fig_eco_importance, use_container_width=True)
 
 # Display feature importance table
-st.markdown("### 📋 Feature Importance Table")
+st.markdown("### Feature Importance Table")
 st.dataframe(eco_feature_importance_df.reset_index(drop=True))
 
+
+# Luxury score prediction
 st.markdown("""## Luxury score prediction""")
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
@@ -857,7 +891,30 @@ fig = px.bar(lux_feature_importance_df_fixed,
              title="Feature Importance for Luxury Score Prediction (Corrected)")
 
 # Streamlit Display
-st.title("Random Forest Regressor - Luxury Score Prediction")
+st.write("### Random Forest Regressor - Luxury Score Prediction")
 st.write(f"**Mean Squared Error (MSE):** {mse_lux_fixed:.4f}")
 st.write(f"**R-squared (R²):** {r2_lux_fixed:.4f}")
 st.plotly_chart(fig)
+
+
+# 4. Cultural Value Prediction (Country-Level Regression)
+
+st.markdown("""## Cultural Value Prediction""")
+st.markdown("""
+| Target | R² Score | Top Predictive Features | Conclusion |
+|--------|----------|--------------------------|------------|
+| **UAI** (Uncertainty Avoidance) | -0.35 | luxury_score, num_ingredients | ❌ Not predictable from food |
+| **IDV** (Individualism)         | 0.03  | luxury_score, protein         | ❌ Weak link to culinary profile |
+| **PDI** (Power Distance)        | -0.11 | luxury_score, protein, eco_score | ❌ Very weak — cultural values transcend food data |
+""")
+
+st.write("### Final Thoughts")
+
+st.markdown("""
+- **Clusters and eco metrics** are the most predictable, food clearly reflects regional practices and environmental impact.
+- **Cultural values** like PDI, UAI, and IDV are harder to model — they involve psychology, history, and societal systems beyond cuisine.
+- Nonetheless, we uncovered subtle signals: luxurious, high-protein, and complex recipes **correlate loosely** with individualism and power dynamics.
+
+This modeling validated some clustering logic and revealed the **limits** of inferring deep cultural traits from food alone.
+""")
+            
