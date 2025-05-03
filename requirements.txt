@@ -12,4 +12,11 @@ loralib
 peft
 thop
 omegaconf
+<<<<<<< HEAD
 streamlit
+=======
+prince
+plotly
+streamlit
+wordcloud
+>>>>>>> v_trung

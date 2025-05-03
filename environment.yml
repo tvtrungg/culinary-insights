@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: recipes
+=======
+name: culinary
+>>>>>>> v_trung
 channels:
   - conda-forge
   - defaults
@@ -19,4 +23,11 @@ dependencies:
       - peft
       - thop
       - omegaconf
+<<<<<<< HEAD
       - streamlit
+=======
+      - prince
+      - plotly
+      - streamlit
+      - wordcloud
+>>>>>>> v_trung
