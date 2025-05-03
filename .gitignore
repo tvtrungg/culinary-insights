@@ -1,5 +1,8 @@
 __pycache__/
 *.pyc
+# *.csv
+# data/
+# *.ipynb
 .DS_Store
 *.ipynb_checkpoints
 *.log
