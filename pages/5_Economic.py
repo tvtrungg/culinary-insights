@@ -12,8 +12,7 @@ sns.set_theme(style="whitegrid")
 
 inject_css()
 
-st.title("Aspects - Economic")
-st.markdown("# Ingredients Analysis on Cultural Diversity")
+st.markdown("# Economic Axis")
 
 cuisine_stats = pd.read_csv("data/cuisine_with_gdp_growth.csv")
 recipes_df = pd.read_csv("data/cleaned_recipes3.csv")
