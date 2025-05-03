@@ -24,11 +24,7 @@ culinary-cultural-insights/
 #### For miniconda3 users:
 ```bash
 conda env create -f environment.yml
-<<<<<<< HEAD
-conda activate recipes
-=======
 conda activate culinary
->>>>>>> v_trung
 ```
 ### Data source
 
