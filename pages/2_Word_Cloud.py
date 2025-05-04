@@ -4,12 +4,12 @@ from PIL import Image
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-from utils.data_loader import load_data
+from utils.data_loader import load_cleaned_recipes_v2
 from utils.style import inject_css
 
 inject_css()
-data = load_data()
-df = data[0]
+df = load_cleaned_recipes_v2()
+
 st.markdown("# Ingredients Word Cloud")
 st.markdown("""
 This word cloud represents the most common ingredients used in the recipes. The size of each word indicates its frequency in the dataset.

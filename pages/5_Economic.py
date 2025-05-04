@@ -1,21 +1,24 @@
 import pandas as pd
 import seaborn as sns
-from utils.style import inject_css
 import streamlit as st
 import plotly.express as px
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import linkage
 import plotly.figure_factory as ff
 sns.set_theme(style="whitegrid")
 
+from utils.data_loader import load_cuisine_with_gdp_growth, load_cleaned_recipes3
+from utils.style import inject_css
 
 inject_css()
 
 st.markdown("# Economic Axis")
 
-cuisine_stats = pd.read_csv("data/cuisine_with_gdp_growth.csv")
-recipes_df = pd.read_csv("data/cleaned_recipes3.csv")
+
+
+cuisine_stats = load_cuisine_with_gdp_growth()
+recipes_df = load_cleaned_recipes3()
 
 
 st.write("## Cuisine with GDP growth - Overview")

@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+from utils.data_loader import load_recipes_df
 from utils.style import inject_css
 
 
@@ -20,7 +20,7 @@ Key questions include:
 - Are some regions naturally more eco-conscious in their food culture?
 """)
 
-recipes_df = pd.read_csv("data/recipes_df.csv")
+recipes_df = load_recipes_df()
 
 
 region_info = recipes_df[["cuisine", "sub_region", "continent"]].drop_duplicates()

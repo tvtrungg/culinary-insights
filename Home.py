@@ -54,4 +54,4 @@ This project invites you to look at food from a new, interdisciplinary perspecti
 st.success("👉 Explore the different sections in the sidebar to dive deeper into each analysis!")
 
 if st.button("Go to Data Overview ➡️"):
-    st.switch_page("pages/Data_Overview.py")
+    st.switch_page("pages/1_Data_Overview.py")

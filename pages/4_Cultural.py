@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from utils.style import inject_css
+from utils.data_loader import load_recipes_df_with_hofstede
 
 
 import matplotlib.pyplot as plt
@@ -14,9 +15,9 @@ sns.set_theme(style="whitegrid")
 
 inject_css()
 
-st.markdown("# Ingredients Analysis on Cultural Diversity")
+st.markdown("# Cultural Axis")
 
-recipes_df_with_hofstede = pd.read_csv("data/recipes_df_with_hofstede.csv", index_col=0)
+recipes_df_with_hofstede = load_recipes_df_with_hofstede()
 
 st.write("## Hofstede Cultural Dimensions - Overview")
 st.write(recipes_df_with_hofstede.head())

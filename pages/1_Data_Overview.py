@@ -4,13 +4,14 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-from utils.data_loader import load_data
 from utils.style import inject_css
+from utils.data_loader import load_cleaned_recipes_v2, load_cleaned_recipes3, load_recipes_df
 
-data = load_data()
 inject_css()
 
-df_v2, df_v3, recipes_df = data[0], data[1], data[6]
+df_v2 = load_cleaned_recipes_v2()
+df_v3 = load_cleaned_recipes3()
+recipes_df = load_recipes_df()
 
 st.markdown("# Dataset Overview")
 st.write(
