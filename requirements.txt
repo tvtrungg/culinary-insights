@@ -17,3 +17,4 @@ prince
 plotly
 streamlit
 wordcloud
+openpyxl
