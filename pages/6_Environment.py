@@ -9,8 +9,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.stats import f_oneway
+import matplotlib.pyplot as plt
+import seaborn as sns
+import plotly.graph_objects as go
+sns.set_theme(style="whitegrid")
 
-from utils.data_loader import load_eco_scores_and_luxury_scores, load_recipes_df
+from utils.data_loader import *
 from utils.style import inject_css
 
 
@@ -30,8 +34,6 @@ Key questions include:
 """)
 
 recipes_df = load_recipes_df()
-
-
 region_info = recipes_df[["cuisine", "sub_region", "continent"]].drop_duplicates()
 
 # Re-aggregate eco scores and merge region info
@@ -43,26 +45,39 @@ cuisine_eco_df = recipes_df.groupby("cuisine").agg(
 
 cuisine_eco_df = cuisine_eco_df.merge(region_info, on="cuisine", how="left")
 
-st.markdown("## Aggregating Eco-Score by Cuisine")
+# Create two columns layout for the entire dashboard
+st.markdown("## Environmental Impact Analysis")
 
-st.write(cuisine_eco_df)
+col1_main, col2_main = st.columns(2)
 
-st.markdown("## Regional Visualizations")
-# Drop missing values once to reuse
-filtered_df_continent = cuisine_eco_df.dropna(subset=["continent"])
+# Left column content
+with col1_main:
+    st.markdown("## Step 1: Eco-Score by Cuisine")
+    st.dataframe(cuisine_eco_df)
+
+    # Drop missing values once to reuse
+    filtered_df_continent = cuisine_eco_df.dropna(subset=["continent"])
+    
+
+# Right column content
+with col2_main:
+    st.markdown("## Step 2: Regional Patterns")
+
+    # Boxplot by continent
+    fig_continent = px.box(
+        filtered_df_continent,
+        x="continent",
+        y="avg_eco_score",
+        color="continent",
+        title="Eco Score by Continent",
+        labels={"avg_eco_score": "Average Recipe Eco Score (kg CO₂-eq)"},
+        color_discrete_sequence=px.colors.sequential.Purples
+    )
+    fig_continent.update_layout(xaxis_tickangle=-45, template="plotly_white", height=400)
+    st.plotly_chart(fig_continent, use_container_width=True)
+
+# Drop missing values for subregion analysis
 filtered_df_subregion = cuisine_eco_df.dropna(subset=["sub_region"])
-
-# Boxplot by continent
-fig_continent = px.box(
-    filtered_df_continent,
-    x="continent",
-    y="avg_eco_score",
-    color="continent",
-    title="Eco Score by Continent",
-    labels={"avg_eco_score": "Average Recipe Eco Score (kg CO₂-eq)"},
-    color_discrete_sequence=px.colors.sequential.Purples  # or adapt to match cubehelix
-)
-fig_continent.update_layout(xaxis_tickangle=-45, template="plotly_white")
 
 # Boxplot by sub-region
 fig_subregion = px.box(
@@ -74,14 +89,16 @@ fig_subregion = px.box(
     labels={"avg_eco_score": "Average Recipe Eco Score (kg CO₂-eq)"},
     color_discrete_sequence=px.colors.sequential.Purples
 )
-fig_subregion.update_layout(xaxis_tickangle=-45, xaxis_tickfont=dict(size=10), template="plotly_white")
-
-# To display in Streamlit
-
-st.plotly_chart(fig_continent, use_container_width=True)
+fig_subregion.update_layout(
+    xaxis_tickangle=-45, 
+    xaxis_tickfont=dict(size=9), 
+    template="plotly_white",
+    height=500
+)
 st.plotly_chart(fig_subregion, use_container_width=True)
 
-st.markdown("## Correlation Analysis - Eco Score vs Economic and Health Indicators")
+# Correlation Analysis section - also in 2 columns
+st.markdown("## Step 3: Correlation Analysis")
 
 gdp_df = pd.read_csv("data/cuisine_with_gdp_growth.csv")
 health_df = pd.read_csv("data/df_clustered.csv")
@@ -113,66 +130,73 @@ corr_cols = ["Eco Score", "GDP_2022", "GDP_growth",
 
 correlation_matrix = corr_df[corr_cols].corr()
 
-# Create interactive heatmap
-fig_corr = px.imshow(
-    correlation_matrix,
-    text_auto=".2f",
-    color_continuous_scale="RdBu_r",
-    title="Correlation between Eco Score, GDP, and Health Indicators",
-    labels=dict(color="Correlation"),
-    aspect="auto"
-)
+col1_corr, col2_corr = st.columns(2)
 
-# Streamlit display
-st.plotly_chart(fig_corr, use_container_width=True)
+with col1_corr:
+    # Create interactive heatmap
+    fig_corr = px.imshow(
+        correlation_matrix,
+        text_auto=".2f",
+        color_continuous_scale="RdBu_r",
+        title="Correlation: Eco Score, GDP, and Health Indicators",
+        labels=dict(color="Correlation"),
+        aspect="auto"
+    )
+    fig_corr.update_layout(height=500)
+    st.plotly_chart(fig_corr, use_container_width=True)
 
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Eco Score Insights")
+with col2_corr:
+    st.subheader("Key Correlations")
     st.markdown("""
     - **Eco Score vs GDP_2022**: `+0.19`  
-      A **weak positive correlation** suggests that countries with higher income levels tend to have slightly higher-emission cuisines. This is likely due to the consumption of **resource-intensive foods** (e.g. beef, dairy) that are more affordable in wealthy nations.
+      A **weak positive correlation** suggests that countries with higher income levels tend to have slightly higher-emission cuisines.
     
     - **Eco Score vs GDP Growth**: `+0.06`  
-      No meaningful correlation. Economic growth trends don’t significantly impact the sustainability of national cuisines.
+      No meaningful correlation. Economic growth doesn't significantly impact cuisine sustainability.
     
     - **Eco Score vs Life Expectancy**: `+0.08`  
-      Nearly no correlation. This indicates that countries with high-impact cuisines are **not necessarily more or less healthy** in terms of longevity.
+      Nearly no correlation. High-impact cuisines are **not necessarily more or less healthy** for longevity.
     
     - **Eco Score vs Healthy Life Expectancy**: `+0.11`  
-      Very weak association. Again, **sustainability and public health longevity do not strongly co-vary** at the country level.
+      Very weak association. **Sustainability and health longevity do not strongly co-vary**.
     
-    - **Eco Score vs UHC (Service Coverage Index)**: `+0.11`  
-      Slight positive trend. Countries with broader healthcare access **may have more industrialized and high-impact food systems**, but the link is weak.
+    - **Eco Score vs UHC**: `+0.11`  
+      Slight positive trend. Countries with broader healthcare access **may have more industrialized food systems**.
     
-    - **Eco Score vs Obesity_Adult_18plus**: `−0.17`  
-      Surprisingly, a **moderate negative correlation**. This suggests that higher-obesity countries may **not** be the ones with the highest environmental food footprints — possibly due to **processed, energy-dense but low-CO₂ foods** (e.g., sugar, oil, refined carbs) dominating in less sustainable ways.
+    - **Eco Score vs Obesity**: `−0.17`  
+      **Moderate negative correlation**. Higher-obesity countries may have lower environmental food footprints — possibly due to **processed, energy-dense but low-CO₂ foods**.
     """)
 
-with col2:
-    st.subheader("Conclusions")
+# Insights section - 2 columns
+st.markdown("## Insights & Conclusions")
+
+col1_insights, col2_insights = st.columns(2)
+
+with col1_insights:
+    st.subheader("Environmental Impact Patterns")
     st.markdown("""
     - Wealth (GDP) **slightly increases** environmental food impact.
-    - **Health outcomes (life expectancy, UHC)** do **not strongly align** with eco score.
+    - **Health outcomes** (life expectancy, UHC) do **not strongly align** with eco score.
     - Obesity and eco score show an **inverse relationship**, indicating that unsustainable eating is not always associated with excess.
-
-    This matrix supports the idea that **sustainable diets can exist in both rich and poor countries**, and **high emissions don't automatically mean unhealthy outcomes** — making this axis especially relevant for holistic policy considerations.
+    
+    This supports the idea that **sustainable diets can exist in both rich and poor countries**, and **high emissions don't automatically mean unhealthy outcomes** — making this axis especially relevant for holistic policy considerations.
     """)
 
+# Hypothesis Testing - 2 columns for visualizations
+st.markdown("## Step 4: Hypothesis Testing: Environmental Impact vs Recipe Attributes")
 
-st.markdown("## Step 4 : Verifying hypotheses related to eco score and recipes ")
-# Assuming your dataframes are loaded and preprocessed as in the original code
-# Safely convert stringified lists if needed
-recipes_df["ingredient_semantics"] = recipes_df["ingredient_semantics"]
+# Safely convert stringified lists if needed (if necessary)
+# recipes_df["ingredient_semantics"] = recipes_df["ingredient_semantics"].apply(eval)
+
+# Define luxury-related semantic categories
 luxury_ingredients = {"dairy", "seafood", "nut", "sweetener"}
 
-# Compute luxury score for each recipe
+# Compute luxury score
 recipes_df["luxury_score"] = recipes_df["ingredient_semantics"].apply(
     lambda sems: sum(1 for item in sems if item in luxury_ingredients)
 )
 
-# Re-merge with eco scores
+# Merge with eco scores
 merged_df = recipes_df.merge(
     cuisine_eco_df[["cuisine", "avg_eco_score"]],
     on="cuisine", how="left"
@@ -183,61 +207,69 @@ bins = [0, 7, 13, np.inf]
 labels = ['Low', 'Medium', 'High']
 merged_df['ingredient_complexity'] = pd.cut(merged_df['num_ingredients'], bins=bins, labels=labels)
 
-# Prepare groups for ANOVA
-groups = [group["avg_eco_score"].dropna() for name, group in merged_df.groupby("ingredient_complexity")]
-# Perform ANOVA test
+# ANOVA
+groups = [group["avg_eco_score"].dropna() for _, group in merged_df.groupby("ingredient_complexity")]
 anova_result = f_oneway(*groups)
 
-# Compute correlation
+# Correlation
 luxury_corr = merged_df[["luxury_score", "avg_eco_score"]].corr().iloc[0, 1]
 
-# Create Streamlit columns
-col1, col2 = st.columns(2)
+col1_hypoth, col2_hypoth = st.columns((2, 1))
 
-with col1:
-    # Boxplot for Eco Score by Ingredient Complexity
+with col1_hypoth:
+    # Boxplot for H1 – Ingredient Complexity vs Eco Score
     fig1 = px.box(
         merged_df,
         x="ingredient_complexity",
         y="avg_eco_score",
-        title="Eco Score by Ingredient Complexity",
-        labels={"ingredient_complexity": "Ingredient Complexity", "avg_eco_score": "Average Eco Score (kg CO₂-eq)"},
         color="ingredient_complexity",
-        color_discrete_sequence=["#66C2A5", "#FC8D62", "#8DA0CB"]
+        title="Eco Score by Ingredient Complexity",
+        labels={"avg_eco_score": "Average Eco Score (kg CO₂-eq)", "ingredient_complexity": "Ingredient Complexity"},
+        color_discrete_sequence=px.colors.qualitative.Set2
     )
-    fig1.update_layout(
-        showlegend=False,
-        title_font_size=24,
-        margin={"r": 0, "t": 40, "l": 0, "b": 40}
-    )
-    st.plotly_chart(fig1)
+    fig1.update_layout(height=400)
+    st.plotly_chart(fig1, use_container_width=True)
+    
+    st.markdown(f"**ANOVA p-value:** {anova_result.pvalue:.4f}")
+    st.markdown("**Interpretation:** The statistical significance suggests that ingredient complexity does impact environmental footprint.")
 
-with col2:
-    # Scatter plot for Luxury Score vs Average Eco Score
+with col2_hypoth:
+    # Scatterplot + Regression for H2 – Luxury Score vs Eco Score
     fig2 = px.scatter(
         merged_df,
         x="luxury_score",
         y="avg_eco_score",
+        trendline="ols",
+        opacity=0.5,
         title="Luxury Score vs Average Eco Score",
-        labels={"luxury_score": "Luxury Ingredient Score", "avg_eco_score": "Average Eco Score (kg CO₂-eq)"},
-        trendline="ols",  # Add linear regression line
-        color="luxury_score",
-        color_continuous_scale="Viridis"
+        labels={"luxury_score": "Luxury Ingredient Score", "avg_eco_score": "Average Eco Score (kg CO₂-eq)"}
     )
-    fig2.update_layout(
-        showlegend=False,
-        title_font_size=24,
-        margin={"r": 0, "t": 40, "l": 0, "b": 40}
-    )
-    st.plotly_chart(fig2)
+    fig2.update_layout(height=400)
+    st.plotly_chart(fig2, use_container_width=True)
+    
+    st.markdown(f"**Pearson Correlation:** {luxury_corr:.4f}")
+    st.markdown("**Interpretation:** A positive correlation confirms that cuisines using more luxury ingredients (dairy, seafood, nuts, sweeteners) tend to have higher environmental footprints.")
 
-st.write(anova_result)
-st.write(luxury_corr)
+with col2_insights:
+    st.subheader("Research Implications")
+    st.markdown("""
+    Our analysis reveals several important findings:
+    
+    1. **Regional Patterns**: There are distinct differences in environmental impact across continents and regions.
+    
+    2. **Complexity Impact**: More complex recipes (with more ingredients) tend to have higher environmental footprints.
+    
+    3. **Luxury Connection**: Cuisines featuring more luxury ingredients show significantly higher eco-impact scores.
+    
+    4. **Health-Environment Disconnect**: Interestingly, the environmental impact of cuisines is not strongly correlated with health outcomes, suggesting multiple pathways to healthy eating.
+    """)
+# st.write(anova_result)
+# st.write(luxury_corr)
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("H1 - Does Ingredient Complexity Influence Environmental Impact?")
+    st.markdown("### H1 - Does Ingredient Complexity Influence Environmental Impact?")
     st.markdown("""
     We tested whether cuisines with **more complex recipes** (more ingredients) have significantly different environmental costs using a **one-way ANOVA**.
 
@@ -255,7 +287,7 @@ with col1:
     """)
 
 with col2:
-    st.subheader("H2 – Does Culinary Luxury Correlate with Environmental Impact?")
+    st.markdown("### H2 – Does Culinary Luxury Correlate with Environmental Impact?")
     st.markdown("""
     We calculated the **Pearson correlation** between:
     - `luxury_score` = count of luxury ingredients (`dairy`, `seafood`, `nut`, `sweetener`)
@@ -277,7 +309,7 @@ These findings support the idea that:
 - This aligns with prior expectations and validates the eco_score as a **behavioral proxy** for sustainability.
 """)
 
-st.markdown("""## Upcoming Hypothesis Tests
+st.markdown("""### Upcoming Hypothesis Tests
 
 | Hypothesis Code | Question                                         | Type          | Method                      |
 |------------------|--------------------------------------------------|---------------|-----------------------------|
@@ -291,40 +323,215 @@ st.markdown("""## Upcoming Hypothesis Tests
 
 
 
+col1, col2 = st.columns(2)
+
+
+with col1:
+    st.markdown("""### H3 - Do Eco Scores Vary Across GDP Classes?""")
+    df = gdp_df.merge(cuisine_eco_df[["cuisine", "avg_eco_score"]], on="cuisine", how="left")
+
+    # Drop missing values
+    df_clean = df.dropna(subset=["GDP_Class", "avg_eco_score"])
+
+    # ANOVA test
+    grouped = df_clean.groupby("GDP_Class")["avg_eco_score"]
+    anova_gdp_result = f_oneway(*(group.dropna() for name, group in grouped))
+
+    # Plot using Plotly
+    fig = px.box(
+        df_clean,
+        x="GDP_Class",
+        y="avg_eco_score",
+        color="GDP_Class",
+        title="Eco Score by GDP Class",
+        labels={"avg_eco_score": "Average Eco Score (kg CO₂-eq)", "GDP_Class": "GDP Class"},
+        color_discrete_sequence=px.colors.diverging.Portland
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Display ANOVA result
+    st.markdown(f"**ANOVA p-value (GDP Class → Eco Score):** {anova_gdp_result.pvalue:.4f}")
+    st.markdown("""There is **no statistically significant difference** in the average eco scores across GDP classes (p > 0.05).
+    This result challenges the common assumption that richer countries always have less sustainable diets. It suggests that **culinary carbon footprint is not strictly a function of national wealth** — local traditions, availability, and food systems play a larger role.
+    This finding is important for policymakers and researchers, as it indicates that **sustainability efforts can be effective across all economic strata**. It also highlights the need for a more nuanced understanding of how **cultural and economic factors** interact to shape dietary choices and their environmental impacts.
+    """)
+
+
+    st.markdown("""### H5 - Does Eco Score Vary Significantly Across Sub-Regions?""")
+    # Drop missing values
+    eco_region_df = cuisine_eco_df.dropna(subset=["sub_region", "avg_eco_score"])
+
+    # Perform ANOVA
+    region_groups = [group["avg_eco_score"] for _, group in eco_region_df.groupby("sub_region")]
+    anova_region_result = f_oneway(*region_groups)
+
+    # Create initial Plotly boxplot
+    px_fig = px.box(
+        eco_region_df,
+        x="sub_region",
+        y="avg_eco_score",
+        color="sub_region",
+        title="Eco Score by Sub-Region",
+        labels={
+            "sub_region": "Sub-Region",
+            "avg_eco_score": "Average Eco Score (kg CO₂-eq)"
+        },
+        color_discrete_sequence=px.colors.qualitative.Set3
+    )
+
+    # Convert to go.Figure to customize layout for box-style border
+    fig = go.Figure(data=px_fig.data, layout=px_fig.layout)
+    fig.update_layout(
+        xaxis=dict(
+            title="Sub-Region",
+            showline=True, linewidth=1, linecolor="black", mirror=True,
+            tickangle=45
+        ),
+        yaxis=dict(
+            title="Average Eco Score (kg CO₂-eq)",
+            showline=True, linewidth=1, linecolor="black", mirror=True
+        ),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # Show ANOVA result
+    st.markdown(f"**ANOVA p-value (Sub-Region → Eco Score):** {anova_region_result.pvalue:.4f}")
+
+
+    st.markdown("### H7 – Is Environmental Impact of Cuisine Related to Healthcare Coverage?")
+    # Merge and clean data
+    df_clustered = load_df_clustered()
+    # Merge eco scores with health dataset
+    merged = df_clustered.merge(cuisine_eco_df[["cuisine", "avg_eco_score"]], on="cuisine", how="left")
+    merged = merged.dropna(subset=["avg_eco_score", "UHC: Service coverage index"])
+
+    # Compute Pearson correlation
+    uhc_corr = merged[["avg_eco_score", "UHC: Service coverage index"]].corr().iloc[0, 1]
+
+    # Plot regression
+    fig = plt.figure(figsize=(8, 5))
+    sns.regplot(
+        data=merged,
+        x="avg_eco_score",
+        y="UHC: Service coverage index",
+        scatter_kws={"alpha": 0.6}
+    )
+    plt.title("Eco Score vs Universal Health Coverage Index")
+    plt.xlabel("Average Eco Score (kg CO₂-eq)")
+    plt.ylabel("UHC: Service Coverage Index")
+    plt.tight_layout()
+    plt.show()
+
+    st.pyplot(fig)
+
+    # Show correlation result
+    st.markdown(f"**Pearson Correlation (Eco Score ↔ UHC Index):** {uhc_corr:.4f}")
+    st.markdown("""This is a **very weak positive correlation**, indicating a slight trend that countries with more sustainable food systems may also have more comprehensive healthcare — but the relationship is **statistically weak**.
+
+Public health infrastructure is likely shaped more by **policy and economic investment** than by food sustainability alone. However, the small positive trend suggests that **environmental awareness and healthcare development may co-evolve** in some regions.""")
 
 
 
 
+with col2:
+    st.markdown("""### H4 - Are More Sustainable Cuisines Associated with Better Health Outcomes?""")
+    df_clustered = load_df_clustered()
 
+    # Merge eco scores into the health dataset
+    merged_df = df_clustered.merge(cuisine_eco_df[["cuisine", "avg_eco_score"]], on="cuisine", how="left")
 
-st.markdown("## Do Luxury and Complexity Interact to Influence Environmental Impact?")
+    # Drop missing values
+    df_corr = merged_df.dropna(subset=["avg_eco_score", "Healthy life expectancy at birth (years)"])
 
-df = load_eco_scores_and_luxury_scores()
+    # Compute Pearson correlation
+    eco_health_corr = df_corr[["avg_eco_score", "Healthy life expectancy at birth (years)"]].corr().iloc[0, 1]
 
-# Drop missing values and create interaction term
-df_model = df.dropna(subset=["num_ingredients", "luxury_score", "eco_score"]).copy()
-df_model["interaction"] = df_model["num_ingredients"] * df_model["luxury_score"]
+    # Plot
+    fig = plt.figure(figsize=(8, 5))
+    sns.regplot(
+        data=df_corr,
+        x="avg_eco_score",
+        y="Healthy life expectancy at birth (years)",
+        scatter_kws={"alpha": 0.6}
+    )
+    plt.title("Eco Score vs Healthy Life Expectancy")
+    plt.xlabel(r"Average Eco Score (kg $CO_2$-eq)")
+    plt.ylabel("Healthy Life Expectancy (years)")
+    plt.tight_layout()
 
-# Interactive scatter plot
-fig_scatter = px.scatter(
-    df_model,
-    x="num_ingredients",
-    y="luxury_score",
-    color="eco_score",
-    color_continuous_scale="RdBu_r",
-    labels={
-        "num_ingredients": "Number of Ingredients",
-        "luxury_score": "Luxury Score",
-        "eco_score": "Eco Score"
-    },
-    title="Luxury × Complexity Interaction Colored by Eco Score",
-    opacity=0.7
-)
+    st.pyplot(fig)
 
-fig_scatter.update_layout(coloraxis_colorbar=dict(title="Eco Score"))
+    st.markdown("""This is a **very weak positive correlation**, suggesting that **eco-friendlier cuisines do not necessarily translate to better health outcomes** at the population level.
 
-# Streamlit display
-st.plotly_chart(fig_scatter, use_container_width=True)
+Healthy longevity appears to be influenced more strongly by **public health infrastructure, medical care, and broader lifestyle factors**, rather than culinary sustainability alone.""")
+
+    st.markdown("""### H6 – Is Culinary Environmental Impact Linked to Obesity?""")    
+    # Merge and clean data
+    merged = df_clustered.merge(cuisine_eco_df[["cuisine", "avg_eco_score"]], on="cuisine", how="left")
+    merged = merged.dropna(subset=["avg_eco_score", "Obesity_Adult_18plus"])
+
+    # Compute Pearson correlation
+    obesity_corr = merged[["avg_eco_score", "Obesity_Adult_18plus"]].corr().iloc[0, 1]
+
+    # Plot the relationship
+    fig = plt.figure(figsize=(8, 5))
+    sns.regplot(
+        data=merged,
+        x="avg_eco_score",
+        y="Obesity_Adult_18plus",
+        scatter_kws={"alpha": 0.6}
+    )
+    plt.title("Eco Score vs Obesity Rate (Adult 18+)")
+    plt.xlabel("Average Eco Score (kg CO₂-eq)")
+    plt.ylabel("Adult Obesity Rate (%)")
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    # Show correlation
+    st.markdown(f"**Pearson Correlation (Eco Score ↔ Obesity Rate):** {obesity_corr:.4f}")
+    st.markdown("""This is a **weak negative correlation**, suggesting that countries with more sustainable culinary habits tend to have **slightly higher obesity rates** — though the relationship is not strong.
+
+This may reflect that **low-carbon cuisines (e.g., grain- or legume-based)** may still suffer from **nutritional imbalances** or high intake of ultra-processed, low-emission foods (e.g., sugar, oils, fried carbs).
+
+It challenges the assumption that **eco-friendly automatically means healthier**, reinforcing the need for a **multi-axis view of food systems**.""")
+
+    st.markdown("### H8 - Do Luxury and Complexity Interact to Influence Environmental Impact?")
+
+    df = load_eco_scores_and_luxury_scores()
+
+    # Drop missing values and create interaction term
+    df_model = df.dropna(subset=["num_ingredients", "luxury_score", "eco_score"]).copy()
+    df_model["interaction"] = df_model["num_ingredients"] * df_model["luxury_score"]
+
+    # Interactive scatter plot
+    fig_scatter = px.scatter(
+        df_model,
+        x="num_ingredients",
+        y="luxury_score",
+        color="eco_score",
+        color_continuous_scale="RdBu_r",
+        labels={
+            "num_ingredients": "Number of Ingredients",
+            "luxury_score": "Luxury Score",
+            "eco_score": "Eco Score"
+        },
+        title="Luxury × Complexity Interaction Colored by Eco Score",
+        opacity=0.7
+    )
+
+    fig_scatter.update_layout(coloraxis_colorbar=dict(title="Eco Score"))
+
+    # Streamlit display
+    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.markdown("""This model suggests that:
+- **Ingredient complexity** is the strongest standalone predictor of carbon footprint.
+- **Luxury alone** isn't environmentally damaging — unless it's **combined with high complexity**.
+- The interaction term is crucial: the most **environmentally intense dishes are both luxurious and complex**.
+
+This validates a nuanced view: **not all rich cuisines are unsustainable**, but complex, multi-luxury dishes often are.""")
 
 col1, col2, col3 = st.columns(3)
 
@@ -487,7 +694,7 @@ with col2:
 st.markdown("#### Key Insights")
 st.markdown("""
 - **Eco Score aligns strongly with complexity and luxury**, more than calories or fat.  
-- Sustainable doesn’t always mean low-calorie — and high-calorie doesn’t always mean high-impact.  
+- Sustainable doesn't always mean low-calorie — and high-calorie doesn't always mean high-impact.  
 - Clusters show that cuisines can be grouped by their **environmental and structural culinary patterns**, not just by geography or health.
 """)
 

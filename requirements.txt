@@ -18,3 +18,4 @@ plotly
 streamlit
 wordcloud
 openpyxl
+statsmodels

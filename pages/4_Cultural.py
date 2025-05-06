@@ -728,60 +728,76 @@ fig_cm.update_layout(
 )
 
 st.markdown("### Confusion Matrix")
-st.plotly_chart(fig_cm, use_container_width=True)
 
-# Get and prepare feature importances
-importances = model.feature_importances_
-feature_importance_df = pd.DataFrame({
-    "Feature": features,
-    "Importance": importances
-}).sort_values(by="Importance", ascending=False)
+col1, col2 = st.columns((1, 2))
 
-# Plot feature importance using Plotly
-fig_feature_importance = px.bar(
-    feature_importance_df,
-    x="Importance",
-    y="Feature",
-    orientation="h",
-    title="Feature Importance for Cluster Prediction",
-    color="Importance",
-    color_continuous_scale="Cividis",
-    labels={"Importance": "Feature Importance", "Feature": "Features"}
-)
+with col1: 
+    st.plotly_chart(fig_cm, use_container_width=True)
 
-# Display in Streamlit
-st.markdown("### Feature Importances")
-st.plotly_chart(fig_feature_importance, use_container_width=True)
+with col2: 
+    # Get and prepare feature importances
+    importances = model.feature_importances_
+    feature_importance_df = pd.DataFrame({
+        "Feature": features,
+        "Importance": importances
+    }).sort_values(by="Importance", ascending=False)
 
-# Show feature importance table
-st.markdown("### Feature Importance Table")
-st.dataframe(feature_importance_df.reset_index(drop=True))
+    # Plot feature importance using Plotly
+    fig_feature_importance = px.bar(
+        feature_importance_df,
+        x="Importance",
+        y="Feature",
+        orientation="h",
+        title="Feature Importance for Cluster Prediction",
+        color="Importance",
+        color_continuous_scale="Cividis",
+        labels={"Importance": "Feature Importance", "Feature": "Features"}
+    )
 
-st.markdown("""##### Top Features Driving Cluster Assignment
-
-| Rank | Feature             | Importance | Interpretation                                                                 |
-|------|---------------------|------------|---------------------------------------------------------------------------------|
-| 1️⃣   | Calories            | 17.2%      | Caloric density is a key driver — helps distinguish heavy vs. light cuisines.   |
-| 2️⃣   | PDI (Power Distance)| 17.0%      | Cultural hierarchy influences how cuisines cluster — possibly tied to food norms. |
-| 3️⃣   | IDV (Individualism) | 13.2%      | Openness and independence shape culinary complexity and expression.             |
-| 4️⃣   | Num Ingredients     | 10.2%      | Ingredient richness is a strong cluster discriminator.                          |
-| 5️⃣   | UAI (Uncertainty Avoidance) | 9.3% | Risk tolerance in culture may affect improvisation and recipe diversity.        |
+    # Display in Streamlit
+    st.markdown("### Feature Importances")
+    st.plotly_chart(fig_feature_importance, use_container_width=True)
 
 
-##### Notably Lower Impact
+col1, col2 = st.columns((1,2))
 
-- **MAS (Masculinity)**: 1.8%  
-  Suggests assertiveness or competition values have **minimal influence** on culinary clustering.
+with col1: 
+    # Show feature importance table
+    st.markdown("### Feature Importance Table")
+    st.dataframe(feature_importance_df.reset_index(drop=True))
 
-- **Luxury Score**: 3.5%  
-  Despite being intuitively important, it contributes less — likely **overlapping with calories or complexity**.
+with col2: 
+    st.markdown("""
+    ##### Top Features Driving Cluster Assignment
+
+    | Rank | Feature             | Importance | Interpretation                                                                 |
+    |------|---------------------|------------|---------------------------------------------------------------------------------|
+    | 1️⃣   | Calories            | 17.2%      | Caloric density is a key driver — helps distinguish heavy vs. light cuisines.   |
+    | 2️⃣   | PDI (Power Distance)| 17.0%      | Cultural hierarchy influences how cuisines cluster — possibly tied to food norms. |
+    | 3️⃣   | IDV (Individualism) | 13.2%      | Openness and independence shape culinary complexity and expression.             |
+    | 4️⃣   | Num Ingredients     | 10.2%      | Ingredient richness is a strong cluster discriminator.                          |
+    | 5️⃣   | UAI (Uncertainty Avoidance) | 9.3% | Risk tolerance in culture may affect improvisation and recipe diversity.        |
 
 
-The model shows that **both cultural values and culinary metrics** (like calories and complexity) play a significant role in determining cultural-culinary cluster membership.
+    ##### Notably Lower Impact
 
-- Strongest predictors: **Calories, Power Distance (PDI), and Individualism (IDV)**
-- This supports the idea that culinary clusters reflect **nutritional patterns and sociocultural structure** together.
+    - **MAS (Masculinity)**: 1.8%  
+    Suggests assertiveness or competition values have **minimal influence** on culinary clustering.
+
+    - **Luxury Score**: 3.5%  
+    Despite being intuitively important, it contributes less — likely **overlapping with calories or complexity**.
+
+
+    The model shows that **both cultural values and culinary metrics** (like calories and complexity) play a significant role in determining cultural-culinary cluster membership.
+
+    - Strongest predictors: **Calories, Power Distance (PDI), and Individualism (IDV)**
+    - This supports the idea that culinary clusters reflect **nutritional patterns and sociocultural structure** together.
+    
 """)
+
+
+
+
 
 st.markdown("""## Eco score prediction """)
 
