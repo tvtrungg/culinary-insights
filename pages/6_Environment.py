@@ -1,17 +1,17 @@
 import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-from sklearn.discriminant_analysis import StandardScaler
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
-from scipy.stats import f_oneway
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objects as go
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, classification_report
+from scipy.stats import f_oneway
 sns.set_theme(style="whitegrid")
 
 from utils.data_loader import *
@@ -862,7 +862,7 @@ feature_importance_df = pd.DataFrame({
 st.markdown("""
     We trained a **Random Forest Regressor** to predict the environmental footprint (**eco_score**, in kg CO₂-eq) of recipes using only basic **nutritional and structural features**: 
             
-    ##### `Calories`, `Fat`, `Carbs`, `Protein`, `Number of Ingredients`, `Luxury Score` (count of high-impact ingredients)
+    ##### `Calories`, `Fat`, `Carbs`, `Protein`, `Number of Ingredients`, `Luxury Score (count of high-impact ingredients)`
     """)
 
 # Streamlit Content
@@ -900,3 +900,95 @@ st.markdown("""
 ##### Conclusion:
 Recipe-level environmental impact is **partially predictable** using nutrition and structure.
             """)
+
+st.markdown("""
+#### Task 2: Predict `dominant_cluster` (from environmental clustering)  
+- **Type**: Classification  
+- **Goal**: Determine whether recipe features alone are sufficient to classify environmental recipe profiles (Heavy hearty, Luxury complexity bomb, balanced classics, light and low ipact).
+            """)
+
+
+
+# Use the same feature set for classification
+features = ["Calories", "Fat", "Carbs", "Protein", "num_ingredients", "luxury_score"]
+
+# Add cluster labels (must be precomputed)
+df_model = df_cluster.dropna(subset=features + ["eco_score", "cluster"])
+
+# We'll use the previously computed clusters from the eco-based clustering step
+from sklearn.preprocessing import StandardScaler
+
+# Scale
+X_features = df_model[features]
+X_scaled = StandardScaler().fit_transform(X_features)
+
+# Classification setup
+X = df_model[features]
+y = df_model["cluster"]
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Random Forest Classifier
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+
+# Evaluate
+acc = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred, output_dict=True)
+report_df = pd.DataFrame(report).transpose().round(2)
+
+st.write("##### Accuracy score: ", acc)
+st.write("##### Classification report:", report_df)
+
+st.markdown("""
+#### Classifying Environmental Clusters from Recipe Features
+
+We trained a **Random Forest Classifier** to predict which **environmental cluster** a recipe belongs to using only:
+
+- Calories
+- Fat
+- Carbs
+- Protein
+- Number of Ingredients
+- Luxury Score
+""")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("""
+### Model Performance:
+
+| Metric        | Value |
+|---------------|--------|
+| **Accuracy**  | 96%   |
+| **Macro F1**  | 0.95  |
+| **Weighted F1** | 0.96 |
+
+This is a **highly accurate model** across all 4 environmental clusters.
+
+""")
+with col2:
+    st.markdown(""" 
+    ### Class-Level Insights:
+
+    | Cluster | Precision | Recall | F1-score | Support |
+    |---------|-----------|--------|----------|---------|
+    | **1** (Hearty/High-Protein)     | 0.99 | 0.88 | 0.93 | 76     |
+    | **2** (Light/Low-Impact)       | 0.98 | 0.99 | 0.98 | 407    |
+    | **3** (Balanced-Classics)      | 0.94 | 0.97 | 0.96 | 302    |
+    | **4** (Luxury-Complex)         | 0.95 | 0.90 | 0.92 | 118    |
+
+    - The model excels especially at identifying **Cluster 2 and 3**, which are the most common.
+    - Slightly lower recall for Cluster 1 and 4, which may reflect **overlap in fat/calorie profiles**.
+
+    """)
+
+st.markdown("""
+### Conclusion:
+Using basic recipe metadata, we can **reliably classify the sustainability profile of a dish** with ~96% accuracy. This confirms that **culinary structure is a strong proxy** for environmental categorization enabling future recommendation, classification, or dashboard tools.
+
+    """)
+                

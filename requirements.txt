@@ -17,5 +17,5 @@ prince
 plotly
 streamlit
 wordcloud
-openpyxl
+openpyxl>=3.1.2
 statsmodels
