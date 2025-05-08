@@ -1,15 +1,15 @@
-# culinary-cultural-insights
+# culinary-insights
 
 ## Project structure
 ```txt
-culinary-cultural-insights/
+culinary-insights/
 │── src/            
 │   ├── __init__.py              
 │── bin/    
 │   ├── eval.py 
 │   ├── train.py 
-│── config/
-│   ├── config.yml
+│── utils/
+│   ├── data_loader.py
 │── demo/
 │   ├── preprocessing.ipynb
 │── __init__.py
@@ -19,13 +19,11 @@ culinary-cultural-insights/
 │── README.md
 ```
 
-## Users manual
-### Setup virtual environment
-#### For miniconda3 users:
+## Streamlit app
+The Streamlit app is located in the `pages` directory. To run the app, navigate to the `pages` directory and run the following command:
 ```bash
-conda env create -f environment.yml
-conda activate culinary
+streamlit run Homes.py
 ```
-### Data source
+
 
 

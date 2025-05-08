@@ -105,10 +105,10 @@ with col1:
     #### 🟩 Q3 Cultures  
     *Moderate to High Individualism*
     
-    - 🥩 **Highest luxury scores**  
-    - 🍲 **Highest ingredient complexity**  
-    - 🌱 **Highest Eco Scores**  
-    - ➕ Balanced richness with environmental awareness
+    - **Highest luxury scores**  
+    - **Highest ingredient complexity**  
+    - **Highest Eco Scores**  
+    - Balanced richness with environmental awareness
     """)
 
 with col2:
@@ -116,9 +116,9 @@ with col2:
     #### 🟦 Q4 Cultures  
     *Most Individualist*
     
-    - 🧂 **Fewest ingredients**  
-    - 🍽️ **High luxury scores**  
-    - 🍷 Preference for **gourmet minimalism**
+    - **Fewest ingredients**  
+    - **High luxury scores**  
+    - Preference for **gourmet minimalism**
     """)
 
 with col3:
@@ -126,9 +126,9 @@ with col3:
     #### 🟨 Q2 Cultures  
     *Moderate Individualism*
     
-    - 🥕 **Modest ingredient use**  
-    - ♻️ **Lower environmental impact**  
-    - ⚖️ Balanced, **less indulgent culinary style**
+    - **Modest ingredient use**  
+    - **Lower environmental impact**  
+    - Balanced, **less indulgent culinary style**
     """)
 
 # Plotting boxplots of culinary traits across IDV quartiles
@@ -396,26 +396,26 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-    ### ♻️ Eco Score  
+    ### Eco Score  
     - **Q1 (Low UAI)**: Highest environmental impact  
     - **Q4 (High UAI)**: Drop in eco score  
-    - 🌍 Suggests environmentally modest cuisines in risk-averse cultures
+    - Suggests environmentally modest cuisines in risk-averse cultures
     """)
 
 with col2:
     st.markdown("""
-    ### 🍲 Ingredient Complexity  
+    ### Ingredient Complexity  
     - Gradual **decline** as UAI increases  
     - **Q1**: Most complex recipes  
-    - ✨ May reflect openness to experimentation
+    - May reflect openness to experimentation
     """)
 
 with col3:
     st.markdown("""
-    ### 🧂 Luxury Score  
+    ### Luxury Score  
     - Sharp **drop in Q4**  
     - High UAI cultures likely **avoid extravagant or unfamiliar ingredients**  
-    - ➖ Simpler, safer culinary choices
+    - Simpler, safer culinary choices
     """)
 
 # Display in Streamlit columns
@@ -772,11 +772,11 @@ with col2:
 
     | Rank | Feature             | Importance | Interpretation                                                                 |
     |------|---------------------|------------|---------------------------------------------------------------------------------|
-    | 1️⃣   | Calories            | 17.2%      | Caloric density is a key driver — helps distinguish heavy vs. light cuisines.   |
-    | 2️⃣   | PDI (Power Distance)| 17.0%      | Cultural hierarchy influences how cuisines cluster — possibly tied to food norms. |
-    | 3️⃣   | IDV (Individualism) | 13.2%      | Openness and independence shape culinary complexity and expression.             |
-    | 4️⃣   | Num Ingredients     | 10.2%      | Ingredient richness is a strong cluster discriminator.                          |
-    | 5️⃣   | UAI (Uncertainty Avoidance) | 9.3% | Risk tolerance in culture may affect improvisation and recipe diversity.        |
+    | 1  | Calories            | 17.2%      | Caloric density is a key driver — helps distinguish heavy vs. light cuisines.   |
+    | 2  | PDI (Power Distance)| 17.0%      | Cultural hierarchy influences how cuisines cluster — possibly tied to food norms. |
+    | 3   | IDV (Individualism) | 13.2%      | Openness and independence shape culinary complexity and expression.             |
+    | 4   | Num Ingredients     | 10.2%      | Ingredient richness is a strong cluster discriminator.                          |
+    | 5  | UAI (Uncertainty Avoidance) | 9.3% | Risk tolerance in culture may affect improvisation and recipe diversity.        |
 
 
     ##### Notably Lower Impact

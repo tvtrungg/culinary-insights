@@ -31,9 +31,87 @@ Key questions include:
 - Which cuisines are the most or least sustainable?
 - Does environmental impact correlate with economic status, health outcomes, or culinary complexity?
 - Are some regions naturally more eco-conscious in their food culture?
+            
+            
+
+### How Are Eco-Scores Calculated?
+
+Each recipe in our dataset has been processed with **ingredient semantics**, a standardized label system identifying types such as:
+- `meat`, `dairy`, `poultry`, `legume`, `vegetable`, etc.
+
+We assign a **carbon intensity (kg CO₂-eq per kg)** to each ingredient type based on scientific literature.
+
+#### Source:
+> Poore & Nemecek (2018), *Reducing food’s environmental impacts through producers and consumers*, Science.  
+> Summary and values via [Our World in Data](https://environmath.org/2018/06/17/paper-of-the-day-poore-nemecek-2018-reducing-foods-environmental-impacts/)
+
+
+### Example Carbon Footprint Mapping:
+
+| Ingredient Type   | CO₂-eq per kg |
+|-------------------|----------------|
+| Beef              | 60.0           |
+| Cheese            | 21.0           |
+| Poultry           | 6.0            |
+| Vegetables        | 0.4            |
+| Legumes           | 0.9            |
+| Nuts              | 0.3            |
+| Coffee            | 17.0           |
+| Eggs              | 4.5            |
+
+Each recipe's **eco_score** is computed by summing the carbon impact of its semantic ingredient types.
+
+
+This methodology gives us a simple but robust way to analyze the **environmental cost of traditional cuisines**, enabling comparisons across countries and regions.
+
 """)
 
 recipes_df = load_recipes_df()
+
+# Re-apply safe evaluation to convert stringified lists to real lists
+def safe_eval(x):
+    if isinstance(x, str):
+        try:
+            return eval(x)
+        except:
+            return []
+    elif isinstance(x, list):
+        return x
+    else:
+        return []
+
+recipes_df["ingredient_semantics"] = recipes_df["ingredient_semantics"].apply(safe_eval)
+
+# Define carbon intensity mapping from Poore & Nemecek (2018)
+eco_score_mapping = {
+    "meat": 60.0,           # Beef/lamb equivalent
+    "poultry": 6.0,
+    "seafood": 5.0,
+    "dairy": 13.5,          # Average dairy impact
+    "fat": 4.0,             # Approx. for oils/butter
+    "grain": 1.4,
+    "vegetable": 0.4,
+    "fruit": 0.5,
+    "legume": 0.9,
+    "herb": 1.0,
+    "spice": 1.2,
+    "sweetener": 4.0,
+    "baked goods": 2.5,
+    "pasta": 2.2,
+    "nut": 0.3,
+    "seasoning": 1.0,
+    "aromatic": 2.0,
+    "egg": 4.5,
+    "beverage": 2.0,
+    "coffee": 17.0
+}
+
+# Calculate the eco_score per recipe
+def calculate_eco_score(semantics):
+    return sum(eco_score_mapping.get(item, 1.5) for item in semantics)
+
+recipes_df["eco_score"] = recipes_df["ingredient_semantics"].apply(calculate_eco_score)
+
 region_info = recipes_df[["cuisine", "sub_region", "continent"]].drop_duplicates()
 
 # Re-aggregate eco scores and merge region info
@@ -55,9 +133,6 @@ with col1_main:
     st.markdown("## Step 1: Eco-Score by Cuisine")
     st.dataframe(cuisine_eco_df)
 
-    # Drop missing values once to reuse
-    filtered_df_continent = cuisine_eco_df.dropna(subset=["continent"])
-    
 
 # Right column content
 with col2_main:
@@ -65,29 +140,24 @@ with col2_main:
 
     # Boxplot by continent
     fig_continent = px.box(
-        filtered_df_continent,
+        cuisine_eco_df.dropna(subset=["continent"]),
         x="continent",
         y="avg_eco_score",
         color="continent",
         title="Eco Score by Continent",
         labels={"avg_eco_score": "Average Recipe Eco Score (kg CO₂-eq)"},
-        color_discrete_sequence=px.colors.sequential.Purples
     )
     fig_continent.update_layout(xaxis_tickangle=-45, template="plotly_white", height=400)
     st.plotly_chart(fig_continent, use_container_width=True)
 
-# Drop missing values for subregion analysis
-filtered_df_subregion = cuisine_eco_df.dropna(subset=["sub_region"])
-
 # Boxplot by sub-region
 fig_subregion = px.box(
-    filtered_df_subregion,
+    cuisine_eco_df.dropna(subset=["sub_region"]),
     x="sub_region",
     y="avg_eco_score",
     color="sub_region",
     title="Eco Score by Sub-Region",
     labels={"avg_eco_score": "Average Recipe Eco Score (kg CO₂-eq)"},
-    color_discrete_sequence=px.colors.sequential.Purples
 )
 fig_subregion.update_layout(
     xaxis_tickangle=-45, 
@@ -214,7 +284,7 @@ anova_result = f_oneway(*groups)
 # Correlation
 luxury_corr = merged_df[["luxury_score", "avg_eco_score"]].corr().iloc[0, 1]
 
-col1_hypoth, col2_hypoth = st.columns((2, 1))
+col1_hypoth, col2_hypoth = st.columns(2)
 
 with col1_hypoth:
     # Boxplot for H1 – Ingredient Complexity vs Eco Score
@@ -225,13 +295,13 @@ with col1_hypoth:
         color="ingredient_complexity",
         title="Eco Score by Ingredient Complexity",
         labels={"avg_eco_score": "Average Eco Score (kg CO₂-eq)", "ingredient_complexity": "Ingredient Complexity"},
-        color_discrete_sequence=px.colors.qualitative.Set2
+        color_discrete_sequence=px.colors.qualitative.Set2,
+        category_orders={"ingredient_complexity": ["Low", "Medium", "High"]}
     )
-    fig1.update_layout(height=400)
+    fig1.update_layout(margin=dict(t=40, b=30, r=0, l=0))
     st.plotly_chart(fig1, use_container_width=True)
     
-    st.markdown(f"**ANOVA p-value:** {anova_result.pvalue:.4f}")
-    st.markdown("**Interpretation:** The statistical significance suggests that ingredient complexity does impact environmental footprint.")
+
 
 with col2_hypoth:
     # Scatterplot + Regression for H2 – Luxury Score vs Eco Score
@@ -247,8 +317,9 @@ with col2_hypoth:
     fig2.update_layout(height=400)
     st.plotly_chart(fig2, use_container_width=True)
     
-    st.markdown(f"**Pearson Correlation:** {luxury_corr:.4f}")
-    st.markdown("**Interpretation:** A positive correlation confirms that cuisines using more luxury ingredients (dairy, seafood, nuts, sweeteners) tend to have higher environmental footprints.")
+st.markdown(f"**ANOVA p-value:** `{anova_result.pvalue}`")
+st.markdown(f"**F-statistic:** `{anova_result.statistic}`")
+st.markdown(f"**Luxury Score Correlation:** `{luxury_corr}`")
 
 with col2_insights:
     st.subheader("Research Implications")
@@ -351,7 +422,7 @@ with col1:
     st.plotly_chart(fig, use_container_width=True)
 
     # Display ANOVA result
-    st.markdown(f"**ANOVA p-value (GDP Class → Eco Score):** {anova_gdp_result.pvalue:.4f}")
+    st.markdown(f"**ANOVA p-value (GDP Class → Eco Score):** `{anova_gdp_result.pvalue}`")
     st.markdown("""There is **no statistically significant difference** in the average eco scores across GDP classes (p > 0.05).
     This result challenges the common assumption that richer countries always have less sustainable diets. It suggests that **culinary carbon footprint is not strictly a function of national wealth** — local traditions, availability, and food systems play a larger role.
     This finding is important for policymakers and researchers, as it indicates that **sustainability efforts can be effective across all economic strata**. It also highlights the need for a more nuanced understanding of how **cultural and economic factors** interact to shape dietary choices and their environmental impacts.
@@ -466,8 +537,11 @@ with col2:
     st.markdown("""This is a **very weak positive correlation**, suggesting that **eco-friendlier cuisines do not necessarily translate to better health outcomes** at the population level.
 
 Healthy longevity appears to be influenced more strongly by **public health infrastructure, medical care, and broader lifestyle factors**, rather than culinary sustainability alone.""")
-
-    st.markdown("""### H6 – Is Culinary Environmental Impact Linked to Obesity?""")    
+    st.write("") 
+    st.write("") 
+    st.write("") 
+    st.write("") 
+    st.markdown("""### H6 - Is Culinary Environmental Impact Linked to Obesity?""")    
     # Merge and clean data
     merged = df_clustered.merge(cuisine_eco_df[["cuisine", "avg_eco_score"]], on="cuisine", how="left")
     merged = merged.dropna(subset=["avg_eco_score", "Obesity_Adult_18plus"])
@@ -523,15 +597,22 @@ It challenges the assumption that **eco-friendly automatically means healthier**
     )
 
     fig_scatter.update_layout(coloraxis_colorbar=dict(title="Eco Score"))
-
+    from sklearn.linear_model import LinearRegression
     # Streamlit display
     st.plotly_chart(fig_scatter, use_container_width=True)
-    st.markdown("""This model suggests that:
-- **Ingredient complexity** is the strongest standalone predictor of carbon footprint.
-- **Luxury alone** isn't environmentally damaging — unless it's **combined with high complexity**.
-- The interaction term is crucial: the most **environmentally intense dishes are both luxurious and complex**.
+    X = df_model[["num_ingredients", "luxury_score", "interaction"]]
+    y = df_model["eco_score"]
 
-This validates a nuanced view: **not all rich cuisines are unsustainable**, but complex, multi-luxury dishes often are.""")
+    model = LinearRegression()
+    model.fit(X, y)
+
+    r2_score = model.score(X, y)
+    coefficients = dict(zip(X.columns, model.coef_))
+    st.markdown(f"**R² Score**: `{r2_score}`")  
+    st.markdown("**Coefficients**:")
+    for feature, coef in coefficients.items():
+        st.markdown(f"- `{feature}`: `{coef}`")
+    
 
 col1, col2, col3 = st.columns(3)
 
@@ -595,23 +676,29 @@ pca_coords = pca.fit_transform(X_scaled)
 df_cluster["PCA1"] = pca_coords[:, 0]
 df_cluster["PCA2"] = pca_coords[:, 1]
 
+df_cluster["cluster"] = df_cluster["cluster"].astype(str)
+ordered_clusters = ["1", "2", "3", "4"] 
+
 # Create interactive scatter plot
 fig = px.scatter(
     df_cluster,
     x="PCA1",
     y="PCA2",
     color="cluster",
+    category_orders={"cluster": ordered_clusters},
     hover_data=["cuisine", "eco_score", "luxury_score", "num_ingredients"],
     title="Clustering of Recipes by Environmental & Nutritional Features",
-    color_discrete_sequence=px.colors.qualitative.Set2
 )
 
 fig.update_layout(
     width=600,
     height=500,
     title_font_size=24,
-    legend_title="Cluster",
-    margin=dict(l=20, r=20, t=50, b=20)
+    legend_title_text='Cluster',
+    legend=dict(
+        font=dict(size=16),  # tăng kích thước chữ legend
+        itemsizing='constant',  # giữ kích thước biểu tượng đều nhau
+    )
 )
 
 # Display in two columns
@@ -831,6 +918,7 @@ st.markdown("""For predictive modeling, we'll consider two key environmental tar
 - **Goal**: Assess how well recipe-level features (e.g., ingredient semantics, luxury score, cuisine type) can estimate a recipe’s environmental footprint.""")
 
 # Prepare features and target for eco_score prediction
+from sklearn.metrics import r2_score
 features = ["Calories", "Fat", "Carbs", "Protein", "num_ingredients", "luxury_score"]
 df_model = recipes_df.dropna(subset=features + ["eco_score"])
 
@@ -861,8 +949,12 @@ feature_importance_df = pd.DataFrame({
 
 st.markdown("""
     We trained a **Random Forest Regressor** to predict the environmental footprint (**eco_score**, in kg CO₂-eq) of recipes using only basic **nutritional and structural features**: 
-            
-    ##### `Calories`, `Fat`, `Carbs`, `Protein`, `Number of Ingredients`, `Luxury Score (count of high-impact ingredients)`
+    - Calories
+    - Fat
+    - Carbs
+    - Protein
+    - Number of Ingredients
+    - Luxury Score (count of high-impact ingredients)
     """)
 
 # Streamlit Content

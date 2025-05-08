@@ -1,0 +1,112 @@
+cuisine,avg_eco_score,std_eco_score,num_recipes,sub_region,continent
+Afghanistan,56.839999999999996,38.41904475647462,5,Southern Asia,Asia
+Algeria,48.53333333333333,58.11217600468941,9,Northern Africa,Africa
+Argentina,28.58,36.90206423531868,30,South America,Americas
+Armenia,32.51875,29.679447855376285,16,Western Asia,Asia
+Australia,51.75555555555556,41.330180145381334,18,Australia and New Zealand,Oceania
+Austria,19.15,12.764852940329366,18,Western Europe,Europe
+Bahamas,28.150000000000002,28.84308120387511,4,Caribbean,Americas
+Bangladesh,88.24166666666667,97.12624828572659,12,Southern Asia,Asia
+Barbados,8.0,,1,Caribbean,Americas
+Belarus,35.5,,1,Eastern Europe,Europe
+Belgium,24.821052631578947,21.01321221801413,19,Western Europe,Europe
+Belize,20.066666666666666,5.150080905513361,3,Central America,Americas
+Bhutan,24.8,,1,Southern Asia,Asia
+Bolivia (Plurinational State of),83.6,0.14142135623731653,2,South America,Americas
+Bosnia and Herzegovina,40.5,,1,Southern Europe,Europe
+Brazil,38.1875,49.35913036105884,24,South America,Americas
+Bulgaria,54.73333333333333,69.79916427388893,3,Eastern Europe,Europe
+Cambodia,20.419999999999998,8.24269373445356,5,South-Eastern Asia,Asia
+Canada,38.91219512195122,49.280848805144984,164,Northern America,Americas
+Central African Republic,24.8,,1,Middle Africa,Africa
+Chile,53.95416666666667,70.22796407703841,24,South America,Americas
+China,62.41643192488263,65.90175121818754,213,Eastern Asia,Asia
+Colombia,37.33,46.59752139331018,10,South America,Americas
+Costa Rica,13.266666666666667,13.550768735881126,3,Central America,Americas
+Croatia,47.1,41.860721446243616,2,Southern Europe,Europe
+Cuba,45.76376811594203,52.81737952331738,69,Caribbean,Americas
+Cyprus,32.15,33.87041481883563,2,Western Asia,Asia
+Czech Republic,56.747058823529414,56.577293564280914,17,Eastern Europe,Europe
+Denmark,40.77916666666666,38.12430446027456,24,Northern Europe,Europe
+Dominican Republic,41.1,51.41258878634965,8,Caribbean,Americas
+Ecuador,13.8,5.656854249492381,2,South America,Americas
+Egypt,48.22631578947368,43.047258812008806,19,Northern Africa,Africa
+El Salvador,12.033333333333333,6.499417223291966,12,Central America,Americas
+Ethiopia,38.050000000000004,33.31677216796831,14,Eastern Africa,Africa
+Finland,54.42999999999999,63.82955180956959,20,Northern Europe,Europe
+France,49.25609756097561,50.18397710109948,164,Western Europe,Europe
+Georgia,30.833333333333332,30.904422552983146,3,Western Asia,Asia
+Germany,51.50402684563759,63.757381002701166,149,Western Europe,Europe
+Greece,31.974161073825503,42.90156971064423,298,Southern Europe,Europe
+Guatemala,14.960000000000003,9.484091943881607,5,Central America,Americas
+Guinea,17.6,,1,Western Africa,Africa
+Guyana,17.766666666666666,14.764935940712148,3,South America,Americas
+Haiti,39.050000000000004,49.24127333853177,6,Caribbean,Americas
+Honduras,17.65,4.493328387732194,4,Central America,Americas
+Hungary,82.44545454545454,85.94606684966105,22,Eastern Europe,Europe
+Iceland,38.35,30.61508342848886,4,Northern Europe,Europe
+India,43.91315789473684,46.392180119264964,190,Southern Asia,Asia
+Indonesia,56.3,54.498792035542714,25,South-Eastern Asia,Asia
+Iran (Islamic Republic of),33.42727272727273,34.27224359100377,44,Southern Asia,Asia
+Iraq,30.133333333333336,38.16298381066834,3,Western Asia,Asia
+Ireland,80.50833333333334,101.62498801183594,24,Northern Europe,Europe
+Israel,16.47142857142857,14.626453529722879,21,Western Asia,Asia
+Italy,58.90881057268722,64.41775789834507,227,Southern Europe,Europe
+Jamaica,37.864583333333336,40.5759151367458,48,Caribbean,Americas
+Japan,42.346250000000005,52.94505266973732,160,Eastern Asia,Asia
+Jordan,13.4,,1,Western Asia,Asia
+Korea (Democratic People's Republic of),75.2,,1,Eastern Asia,Asia
+"Korea, Republic of",37.87096774193548,33.25272230238115,124,Eastern Asia,Asia
+Kuwait,9.2,,1,Western Asia,Asia
+Latvia,16.133333333333333,10.464384039843592,3,Northern Europe,Europe
+Lebanon,30.89814814814815,35.6964745933367,54,Western Asia,Asia
+Liberia,93.2,,1,Western Africa,Africa
+Lithuania,37.42857142857143,32.57287799615474,7,Northern Europe,Europe
+Malaysia,61.013333333333335,63.40146704129571,30,South-Eastern Asia,Asia
+Mali,10.5,,1,Western Africa,Africa
+Malta,112.85000000000001,30.334880912902893,2,Southern Europe,Europe
+Mexico,38.9148,40.35973953410804,250,Central America,Americas
+Mongolia,30.071428571428573,19.026436206638245,14,Eastern Asia,Asia
+Morocco,68.40833333333333,93.0793066091523,24,Northern Africa,Africa
+Myanmar,25.099999999999998,9.431860898041277,6,South-Eastern Asia,Asia
+Netherlands,31.516279069767442,44.555203481227636,43,Western Europe,Europe
+New Zealand,71.48235294117647,103.19914749704887,17,Australia and New Zealand,Oceania
+Nicaragua,5.5,,1,Central America,Americas
+Nigeria,13.75,4.663689526544408,4,Western Africa,Africa
+Norway,56.714285714285715,49.345063438142276,21,Northern Europe,Europe
+Pakistan,80.39642857142857,77.684745068785,28,Southern Asia,Asia
+"Palestine, State of",19.0,,1,Western Asia,Asia
+Panama,15.899999999999999,4.242640687119284,2,Central America,Americas
+Paraguay,4.5,,1,South America,Americas
+Peru,32.722500000000004,33.67184388347066,40,South America,Americas
+Philippines,43.07916666666667,32.28208520777923,24,South-Eastern Asia,Asia
+Poland,88.3695652173913,109.6048499042339,23,Eastern Europe,Europe
+Portugal,52.07543859649123,56.88697214873215,57,Southern Europe,Europe
+Puerto Rico,32.869491525423726,31.22204821219425,59,Caribbean,Americas
+Romania,42.26666666666667,47.868848603937266,6,Eastern Europe,Europe
+Russian Federation,37.75416666666667,47.746868589939254,24,Eastern Europe,Europe
+Samoa,15.933333333333332,11.642307904076981,3,Polynesia,Oceania
+Saudi Arabia,4.8,,1,Western Asia,Asia
+Serbia,63.44285714285714,73.51951797862608,7,Southern Europe,Europe
+Singapore,71.63333333333334,68.76018712404245,3,South-Eastern Asia,Asia
+Slovakia,73.05,80.05210802970774,8,Eastern Europe,Europe
+Somalia,63.4,65.23741257897954,4,Eastern Africa,Africa
+South Africa,52.870370370370374,50.87560103455075,27,Southern Africa,Africa
+Spain,53.709868421052626,74.41133553170317,152,Southern Europe,Europe
+Sri Lanka,22.8,19.902110440855264,11,Southern Asia,Asia
+Sweden,91.7375,116.27278575196236,24,Northern Europe,Europe
+Switzerland,27.284375,33.33567409455986,32,Western Europe,Europe
+Syrian Arab Republic,63.91538461538461,65.91557537428523,13,Western Asia,Asia
+Thailand,34.527142857142856,43.23605219154185,70,South-Eastern Asia,Asia
+Trinidad and Tobago,12.0,4.242640687119285,2,Caribbean,Americas
+Tunisia,29.325,37.79767008211437,12,Northern Africa,Africa
+Turkey,40.116279069767444,45.050569100747424,43,Western Asia,Asia
+Ukraine,42.11904761904762,45.76156268144281,21,Eastern Europe,Europe
+United Kingdom of Great Britain and Northern Ireland,24.541176470588237,32.66844920606749,17,Northern Europe,Europe
+United States,41.89625468164794,48.667282870631695,267,Northern America,Americas
+Uruguay,32.1,,1,South America,Americas
+Uzbekistan,46.7,40.02224381515859,2,Central Asia,Asia
+Venezuela (Bolivarian Republic of),14.7125,5.169260101794066,8,South America,Americas
+Viet Nam,47.61666666666667,50.91309211507339,66,Southeast Asia,Asia
+Yemen,16.8,,1,Western Asia,Asia
+Zimbabwe,34.5,,1,Eastern Africa,Africa

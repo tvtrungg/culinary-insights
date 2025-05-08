@@ -36,7 +36,7 @@ fig1 = px.scatter(
     title="GDP Growth vs. Luxury Score per Cuisine",
     labels={
         "GDP_growth": "GDP Growth (2010–2022)",
-        "avg_luxury_score": "🍽️ Average Luxury Score",
+        "avg_luxury_score": "Average Luxury Score",
         "GDP_Class": "GDP Class"
     }
 )
@@ -61,9 +61,9 @@ fig2 = px.box(
     points="all",
     labels={
         "GDP_Class": "GDP Class (2022)",
-        "avg_total_ingredients": "🧂 Avg. Ingredients per Recipe"
+        "avg_total_ingredients": "Avg. Ingredients per Recipe"
     },
-    title="📦 Number of Ingredients per Recipe by GDP Class"
+    title="Number of Ingredients per Recipe by GDP Class"
 )
 fig2.update_layout(
     title_font_size=28,
@@ -88,7 +88,7 @@ fig3 = px.scatter(
     title="Economic Growth vs Ingredient Richness",
     labels={
         "GDP_growth": "GDP Growth (2010–2022)",
-        "avg_total_ingredients": "🧂 Avg. Number of Ingredients",
+        "avg_total_ingredients": "Avg. Number of Ingredients",
         "GDP_Class": "GDP Class"
     }
 )
@@ -126,7 +126,7 @@ This hypothesis appears **unconfirmed** within this timeframe and dataset.
 ## Hypothesis 2:
 ##### **"Countries with economic stability have more consistent ingredient richness."**
 
-🔍 **Graph 2: Boxplot - Number of Ingredients by GDP Class**
+**Graph 2: Boxplot - Number of Ingredients by GDP Class**
 
 ### What we see:
 - Low-income countries have a higher average number of ingredients, with large variance.
@@ -256,7 +256,7 @@ fig4 = px.scatter(
     height=650,
     hover_name="cuisine" if "cuisine" in cuisine_stats.columns else None,
     title="GDP Growth vs Luxury Score by Region",
-    labels={"GDP_growth": "GDP Growth (2010–2022)", "avg_luxury_score": "Avg. Luxury Score", "sub_region": "Sub-Region"}
+    labels={"GDP_growth": "GDP Growth (2010-2022)", "avg_luxury_score": "Avg. Luxury Score", "sub_region": "Sub-Region"}
 )
 fig4.update_layout(
     title_font_size=28,
@@ -480,7 +480,7 @@ Shared characteristics:
 st.markdown("""
 ---
 
-## 🧠 Key Interpretations / Validated Hypotheses
+## Key Interpretations / Validated Hypotheses
 
 ### Hypothesis 1  
 **"Economically wealthy countries tend to share more homogeneous luxury culinary profiles."**  
@@ -583,7 +583,7 @@ fig = px.histogram(
     x="cluster",
     color="GDP_Class",
     barmode="group",
-    title="💰 Distribution of GDP Classes by Cluster",
+    title="Distribution of GDP Classes by Cluster",
     color_discrete_sequence=px.colors.qualitative.Set2,
     category_orders={"cluster": sorted(df["cluster"].unique())}
 )
