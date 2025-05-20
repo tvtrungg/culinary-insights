@@ -28,26 +28,16 @@ st.write("## Hypothesis 1: Does GDP growth correlate with an increase in culinar
 st.markdown("We test whether there is a positive correlation between GDP growth (2010-2022) and the average score of luxury ingredients per recipe (cheese, nuts, seafood, sweeteners).")
 
 # Graph 1: GDP Growth vs. Luxury Score
-fig1 = px.scatter(
-    cuisine_stats,
-    x="GDP_growth",
-    y="avg_luxury_score",
-    color="GDP_Class",
-    title="GDP Growth vs. Luxury Score per Cuisine",
-    labels={
-        "GDP_growth": "GDP Growth (2010–2022)",
-        "avg_luxury_score": "Average Luxury Score",
-        "GDP_Class": "GDP Class"
-    }
-)
-fig1.update_layout(
-    title_font_size=28,
-    title_x=0,
-    font=dict(size=18),
-    xaxis=dict(title_font=dict(size=20), tickfont=dict(size=16)),
-    yaxis=dict(title_font=dict(size=20), tickfont=dict(size=16))
-)
-st.plotly_chart(fig1, use_container_width=True)
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 5))
+sns.regplot(data=cuisine_stats, x="GDP_growth", y="avg_luxury_score")
+plt.title("GDP Growth vs. Luxury Score per Cuisine")
+plt.xlabel("GDP Growth (2010 to 2022)")
+plt.ylabel("Average Luxury Score")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
 
 
 st.write("## Hypothesis 2: Do higher-income countries use more ingredients?")
